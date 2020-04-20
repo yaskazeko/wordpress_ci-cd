@@ -95,7 +95,6 @@
           -e WORDPRESS_DATABASE_NAME=bitnami_wordpress \
           --network wordpress-network \
           --volume wordpress_data:/data/wordpress \
-#          --volume ./wordpress-vhosts.conf:/data/nginx/conf/server_blocks/wordpress-vhosts.conf \
           bitnami/wordpress-nginx:latest
       args:
         executable: /bin/bash
