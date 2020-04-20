@@ -51,4 +51,40 @@
         systemctl enable docker
       args:
         executable: /bin/bash
+    
+    - name: add docker network
+      shell: "docker network create wordpress-network"
+      args:
+        executable: /bin/bash
+    
+    - name: add docker network
+      shell: |
+          docker volume create --name mariadb_data
+      &&  docker run -d --name mariadb \
+          --env ALLOW_EMPTY_PASSWORD=yes \
+          --env MARIADB_USER=bn_wordpress \
+          --env MARIADB_DATABASE=bitnami_wordpress \
+          --network wordpress-network \
+          --volume mariadb_data:/data/mariadb \
+          bitnami/mariadb:latest
+      args:
+        executable: /bin/bash
+    
+    - name: add docker network
+      shell: |
+          docker volume create --name wordpress_data
+      &&  docker run -d --name wordpress \
+          -p 8080:8080 -p 8443:8443 \
+          -e ALLOW_EMPTY_PASSWORD=yes \
+          -e WORDPRESS_DATABASE_USER=bn_wordpress \
+          -e WORDPRESS_DATABASE_NAME=bitnami_wordpress \
+          --network wordpress-network \
+          --volume wordpress_data:/data/wordpress \
+          --volume ./wordpress-vhosts.conf:/data/nginx/conf/server_blocks/wordpress-vhosts.conf \
+          bitnami/wordpress-nginx:latest
+      args:
+        executable: /bin/bash
+
+
+
          
