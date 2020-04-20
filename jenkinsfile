@@ -10,46 +10,26 @@ pipeline {
         git 'git@github.com:yaskazeko/wordpress.git'
       }
     }
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
-        }
-      }
-    }
-    stage('Deploy Image') {
-      steps{
-        script {
-          docker.withRegistry('', registryCredential ) {
-            dockerImage.push()
-          }
-        }
-      }
-    }
-
-    stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
+    stage('check files'){
+      steps { 
+        sh '''
+          whoami
+          pwd
+          ls -la
+        '''  
       }
     }
 
     stage('install docker to target'){
           steps {
-                  sh """
-                  cd /var/lib/jenkins/VM/
-                  ansible-playbook -i inventory.yaml install.yaml
-                  """
+              ansiblePlaybook(
+                  inventory: './wordpress/inventory.yaml'
+                  playbook: './wordpress/install.yaml'
+              )
           }
     }
 
-      stage('Update wordpress'){
-          steps {
-                  sh """
-                  cd /var/lib/jenkins/VM/
-                  ansible-playbook -i inventory.yaml update.yaml
-                  """
-          }
-      }
+
   }
   post {
             success {
