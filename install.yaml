@@ -29,7 +29,7 @@
     
     - name: install docker apt-repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/debian baster stable
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
         state: present
     
     - name:
