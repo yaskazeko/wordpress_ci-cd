@@ -39,10 +39,10 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
-
-    - name: Install doker-compose
-      pip:
-        name: doker-compose
+          - docker-compose
+#    - name: Install doker-compose
+#      pip:
+#        name: doker-compose
 
     - name: enable docker
       shell: |
