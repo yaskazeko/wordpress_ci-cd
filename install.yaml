@@ -40,13 +40,9 @@
           - docker-ce-cli
           - containerd.io
           - docker-compose
-#    - name: Install doker-compose
-#      pip:
-#        name: doker-compose
 
     - name: enable docker
       shell: |
-        
         usermod -aG docker $USER
         systemctl enable docker
       args:
@@ -61,13 +57,6 @@
       file:
         path: /data/wordpress
         state: directory
-        owner: user
-        group: user
-        mode: '0755'
-    - name: Copy file with owner and permissions
-      copy:
-        src: /src
-        dest: /date/wordpress
         owner: user
         group: user
         mode: '0755'
@@ -87,14 +76,13 @@
     
     - name: add docker network
       shell: |
-          docker volume create --name wordpress_data
           docker run -d --name wordpress \
           -p 8080:8080 -p 8443:8443 \
           -e ALLOW_EMPTY_PASSWORD=yes \
           -e WORDPRESS_DATABASE_USER=bn_wordpress \
           -e WORDPRESS_DATABASE_NAME=bitnami_wordpress \
           --network wordpress-network \
-          --volume wordpress_data:/bitnami/wordpress \
+          --volume wordpress_data:/date/wordpress \
           bitnami/wordpress:latest
       args:
         executable: /bin/bash

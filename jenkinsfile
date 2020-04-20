@@ -7,7 +7,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git 'git@github.com:yaskazeko/wordpress.git'
+        git 'https://github.com/yaskazeko/wordpress.git'
       }
     }
     stage('check files'){
@@ -23,8 +23,8 @@ pipeline {
     stage('install docker to target'){
           steps {
               ansiblePlaybook(
-                  inventory: './wordpress/inventory.yaml'
-                  playbook: './wordpress/install.yaml'
+                  inventory: 'inventory.yaml',
+                  playbook: 'install.yaml'
               )
           }
     }
