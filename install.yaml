@@ -57,10 +57,25 @@
       args:
         executable: /bin/bash
     
+    - name: Create a directory if it does not exist
+      file:
+        path: /data/wordpress
+        state: directory
+        owner: user
+        group: user
+        mode: '0755'
+    - name: Copy file with owner and permissions
+      copy:
+        src: /src
+        dest: /date/wordpress
+        owner: user
+        group: user
+        mode: '0755'
+   
     - name: add docker network
       shell: |
           docker volume create --name mariadb_data
-      &&  docker run -d --name mariadb \
+          docker run -d --name mariadb \
           --env ALLOW_EMPTY_PASSWORD=yes \
           --env MARIADB_USER=bn_wordpress \
           --env MARIADB_DATABASE=bitnami_wordpress \
@@ -73,14 +88,14 @@
     - name: add docker network
       shell: |
           docker volume create --name wordpress_data
-      &&  docker run -d --name wordpress \
+          docker run -d --name wordpress \
           -p 8080:8080 -p 8443:8443 \
           -e ALLOW_EMPTY_PASSWORD=yes \
           -e WORDPRESS_DATABASE_USER=bn_wordpress \
           -e WORDPRESS_DATABASE_NAME=bitnami_wordpress \
           --network wordpress-network \
           --volume wordpress_data:/data/wordpress \
-          --volume ./wordpress-vhosts.conf:/data/nginx/conf/server_blocks/wordpress-vhosts.conf \
+#          --volume ./wordpress-vhosts.conf:/data/nginx/conf/server_blocks/wordpress-vhosts.conf \
           bitnami/wordpress-nginx:latest
       args:
         executable: /bin/bash
