@@ -1,43 +1,31 @@
 ---
-- name: test wordpress
+  - name: test wordpress
     shell: |
-        docker inspect -f '{{.State.Running}}' wordpress
-        exit 1
+        docker ps
+        exit 0
     args:
       executable: /bin/bash
     register: out
+  - debug:
+      msg: "{{ out.stdout }}"
 
   - name: stop wordpress
     shell: |
-        docker stop $(docker ps -aq)
-    args:
-      executable: /bin/bash
-    when: 'out == activ'
-  - name: backup wordpress
-    shell: |
-        rsync -a /data/wordpress /data/backups/wordpress.bkp.$(date +%Y%m%d-%H.%M.%S)
-    args:
-      executable: /bin/bash
-  - name: del db
-    shell: |
-        docker rm wordpress
-    args:
-      executable: /bin/bash
+        docker stop wordpress
+        #rsync -a /var/lib/docker/volumes/ /data/backups/wordpress.bkp.$(date +%Y%m%d-%H.%M.%S) 
+        docker rm -f wordpress
+        docker rmi -f wordpress
 
-  - name: backup db
-    shell: |
-        rsync -a /data/mariadb /data/backups/mariadb.bkp.$(date +%Y%m%d-%H.%M.%S) \
     args:
       executable: /bin/bash
-  - name: del db
-    shell: |
-        docker rm mariadb
-    args:
-      executable: /bin/bash
+    when: "'wordpress' in out.stdout"
 
-  - name: del net wordpress
+  - name: stop db
     shell: |
-        docker network prune -f
+        docker stop mariadb
+        #rsync -a /data/mariadb /data/backups/mariadb.bkp.$(date +%Y%m%d-%H.%M.%S) 
+        docker rm -f mariadb
+        docker rmi -f mariadb
     args:
       executable: /bin/bash
-    
+    when: "'mariadb' in out.stdout"
