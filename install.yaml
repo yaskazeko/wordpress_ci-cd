@@ -11,47 +11,23 @@
       debug:
         msg: "{{ out.stdout }}"
 
-  tasks:
-    - name: "install docker"
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg-agent
-          - software-properties-common
-        state: present
-        update_cache: yes
-    - name: install apt-key for docker
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-    
-    - name: install docker apt-repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
-        state: present
-    
-    - name:
-      apt:
-        update_cache: yes
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose
-
-    - name: enable docker
+    - name: test run docker
       shell: |
-        usermod -aG docker $USER
-        systemctl enable docker
+          systemctl is-active docker
       args:
         executable: /bin/bash
-    
+      register: output
+
+    - name: install
+        include_tasks: install_docker.yaml 
+      when: output == inactive
+
     - name: add docker network
       shell: "docker network create wordpress-network"
       args:
         executable: /bin/bash
+
+
 
     - name: rollback and backup user data
         include_tasks: rollback.yaml        

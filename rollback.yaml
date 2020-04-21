@@ -1,18 +1,43 @@
 ---
+- name: test wordpress
+    shell: |
+        docker inspect -f '{{.State.Running}}' wordpress
+        exit 1
+    args:
+      executable: /bin/bash
+    register: out
+
   - name: stop wordpress
     shell: |
-        docker stop wordpress \
-        rsync -a /data/wordpress /data/backups/wordpress.bkp.$(date +%Y%m%d-%H.%M.%S) \
-        docker network remove wordpress-network
-
+        docker stop $(docker ps -aq)
+    args:
+      executable: /bin/bash
+    when: 'out == activ'
+  - name: backup wordpress
+    shell: |
+        rsync -a /data/wordpress /data/backups/wordpress.bkp.$(date +%Y%m%d-%H.%M.%S)
+    args:
+      executable: /bin/bash
+  - name: del db
+    shell: |
+        docker rm wordpress
     args:
       executable: /bin/bash
 
-  - name: stop db
+  - name: backup db
     shell: |
-        docker stop mariadb \
         rsync -a /data/mariadb /data/backups/mariadb.bkp.$(date +%Y%m%d-%H.%M.%S) \
-        docker rm mariadb
-
     args:
-      executable: /bin/bash      
+      executable: /bin/bash
+  - name: del db
+    shell: |
+        docker rm mariadb
+    args:
+      executable: /bin/bash
+
+  - name: del net wordpress
+    shell: |
+        docker network prune -f
+    args:
+      executable: /bin/bash
+    
