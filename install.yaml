@@ -52,37 +52,54 @@
       shell: "docker network create wordpress-network"
       args:
         executable: /bin/bash
-    
-    - name: Create a directory if it does not exist
+
+    - name: rollback and backup user data
+        include_tasks: rollback.yaml        
+
+
+    - name: Create a directory wordpress
       file:
         path: /data/wordpress
         state: directory
         owner: user
         group: user
         mode: '0755'
-   
-    - name: add docker network
+    - name: Create a directory mariadb
+      file:
+        path: /data/mariadb
+        state: directory
+        owner: user
+        group: user
+        mode: '0755'
+    - name: Create a directory backup
+      file:
+        path: /data/backup
+        state: directory
+        owner: user
+        group: user
+        mode: '0755'
+
+    - name: docker run mariadb
       shell: |
-          docker volume create --name mariadb_data
           docker run -d --name mariadb \
           --env ALLOW_EMPTY_PASSWORD=yes \
           --env MARIADB_USER=bn_wordpress \
-          --env MARIADB_DATABASE=bitnami_wordpress \
+          --env MARIADB_DATABASE=wordpress \
           --network wordpress-network \
-          --volume mariadb_data:/bitnami/mariadb \
+          --volume mariadb_data:/data/mariadb \
           bitnami/mariadb:latest
       args:
         executable: /bin/bash
     
-    - name: add docker network
+    - name: docker run wordpress 
       shell: |
           docker run -d --name wordpress \
           -p 8080:8080 -p 8443:8443 \
           -e ALLOW_EMPTY_PASSWORD=yes \
           -e WORDPRESS_DATABASE_USER=bn_wordpress \
-          -e WORDPRESS_DATABASE_NAME=bitnami_wordpress \
+          -e WORDPRESS_DATABASE_NAME=wordpress \
           --network wordpress-network \
-          --volume wordpress_data:/date/wordpress \
+          --volume wordpress_data:/data/wordpress \
           bitnami/wordpress:latest
       args:
         executable: /bin/bash
