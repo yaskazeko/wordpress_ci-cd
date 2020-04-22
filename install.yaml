@@ -3,7 +3,7 @@
     become: true
     vars:
       name_cms: "wordpress"
-      namedb: "mariadb"
+      name_db: "mariadb"
       name_docker_net: "wordpress-network" 
   
     tasks:
