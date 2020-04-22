@@ -1,8 +1,12 @@
 ---
   - hosts: all
     become: true
+    vars:
+      name_cms: "wordpress"
+      namedb: "mariadb"
+      name_docker_net: "wordpress-network" 
   
-    pre_tasks:
+    tasks:
       - name: check host
         shell: |
           hostname
@@ -41,10 +45,10 @@
         include_tasks: rollback.yaml
   
       - name: add docker network
-        shell: "docker network create wordpress-network"
+        shell: "docker network create {{ name_docker_net }}"
         args:
           executable: /bin/bash
-        when: "not 'wordpress-network' in output.stdout"
+        when: 'not "{{ name_docker_net }}" in output.stdout'
   
       - name: Create a directory wordpress
         file:
@@ -53,6 +57,7 @@
           owner: user
           group: user
           mode: '0755'
+
       - name: Create a directory mariadb
         file:
           path: /data/mariadb
@@ -60,6 +65,7 @@
           owner: user
           group: user
           mode: '0755'
+
       - name: Create a directory backup
         file:
           path: /data/backup

@@ -1,7 +1,7 @@
 ---
-  - name: test wordpress
+  - name: test "{{ name_cms }}"
     shell: |
-        docker ps
+        docker ps -a
         exit 0
     args:
       executable: /bin/bash
@@ -9,23 +9,22 @@
   - debug:
       msg: "{{ out.stdout }}"
 
-  - name: stop wordpress
+  - name: remove "{{ name_cms }}" 
     shell: |
-        docker stop wordpress
-        #rsync -a /var/lib/docker/volumes/ /data/backups/wordpress.bkp.$(date +%Y%m%d-%H.%M.%S) 
-        docker rm -f wordpress
-        docker rmi -f wordpress
-
+        docker stop "{{ name_cms }}"
+        docker rm -f "{{ name_cms }}"
+        docker rmi -f "{{ name_cms }}"
+        exit 0
     args:
       executable: /bin/bash
-    when: "'wordpress' in out.stdout"
+    when: "'{{ name_cms }}' in out.stdout"
 
-  - name: stop db
+  - name: stop "{{ name_db }}"
     shell: |
-        docker stop mariadb
-        #rsync -a /data/mariadb /data/backups/mariadb.bkp.$(date +%Y%m%d-%H.%M.%S) 
-        docker rm -f mariadb
-        docker rmi -f mariadb
+        docker stop "{{ name_db }}"
+        docker rm -f "{{ name_db }}"
+        docker rmi -f "{{ name_db }}"
+        exit 0
     args:
       executable: /bin/bash
-    when: "'mariadb' in out.stdout"
+    when: "'{{ name_db }}' in out.stdout"

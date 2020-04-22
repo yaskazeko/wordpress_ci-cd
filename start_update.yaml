@@ -1,23 +1,33 @@
 ---
     - hosts: all
       become: true
-    
+      vars:
+        docker_image: "bitnami/wordpress:latest"
+   
+      tasks:  
         - name: rollback and backup user data
             include_tasks: rollback.yaml
         
-        - name: add docker network
-          shell: "docker network create wordpress-network"
+        - name: update
+          shell: |
+              docker pull "{{ docker_image }}"
+              docker stop "{{ name_cms }}"
+              rsync -a /var/lib/docker/volumes/ /data/backups/wolumes.bkp.$(date +%Y%m%d-%H.%M.%S)
+              docker rm "{{ name_cms }}"
+              docker run --name "{{ name_cms }}" "{{ docker_image }}"
           args:
             executable: /bin/bash
-        
-        - name: Create a directory if it does not exist
-          file:
-            path: /data/wordpress
-            state: directory
-            owner: user
-            group: user
-            mode: '0755'
-       
+          
+
+
+
+
+
+
+
+
+
+
         - name: add docker network
           shell: |
               docker volume create --name mariadb_data

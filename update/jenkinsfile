@@ -1,6 +1,9 @@
 pipeline {
-}
+
   agent { label 'master'}
+  triggers {
+    cron('H 0 * * 6')
+  }
   stages {
     stage('Cloning Git') {
       steps {
@@ -21,7 +24,7 @@ pipeline {
           steps {
               ansiblePlaybook(
                   inventory: 'inventory.yaml',
-                  playbook: 'install.yaml'
+                  playbook: 'start_update.yaml'
               )
           }
     }
